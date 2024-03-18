@@ -3,7 +3,6 @@ const commentButton = document.getElementById('comment-button') // * Button
 const commentsList = document.getElementById('comments-list') // * List
 const commentName = document.getElementById('comment-name') // * Name
 const commentText = document.getElementById('comment-text') // * Text
-const commentDate = new Date()
 
 // --------------------------------------------
 
@@ -54,16 +53,23 @@ function fnLike() {
 
 // * Функция добавления комментария
 commentButton.addEventListener('click', () => {
+  let error = false
   // * Валидация полей ввода
   commentName.classList.remove('input-error')
   commentText.classList.remove('input-error')
   // * Name
-  if (commentName.value === '') {
+  if (commentName.value.trim() === '') {
     commentName.classList.add('input-error')
+    error = true
   }
   // * Text
-  if (commentText.value === '') {
+  if (commentText.value.trim() === '') {
     commentText.classList.add('input-error')
+    error = true
+  }
+
+  if (error) {
+    return
   }
 
   // * Добваление комментария  
@@ -71,6 +77,7 @@ commentButton.addEventListener('click', () => {
 
   if (commentName.value && commentText.value) {
     const index = document.querySelectorAll('li.comment').length + 1
+    const commentDate = new Date()
 
     commentsList.innerHTML = oldCommentList +
       `<li class="comment">
