@@ -20,6 +20,7 @@ function fnDate(commentDate) {
 // * Функция добавления лайка
 function fnLike() {
   const commentLikeButtons = document.querySelectorAll('.like-button') // * Like Button
+
   commentLikeButtons.forEach((button) => button.addEventListener('click', () => {
     const element = document.querySelector(`.likes-counter[data-index="${button.dataset.index}"]`)
     let counter = Number(element.innerText)
