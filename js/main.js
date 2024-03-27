@@ -108,12 +108,12 @@ commentButton.addEventListener('click', () => {
 
   // * Проверка ввода на пробелы
   if (commentNameInput.value.trim() === '') {
-    commentName.classList.add('input-error')
+    commentNameInput.classList.add('input-error')
     error = true
   }
 
   if (commentTextInput.value.trim() === '') {
-    commentText.classList.add('input-error')
+    commentTextInput.classList.add('input-error')
     error = true
   }
 
