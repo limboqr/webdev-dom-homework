@@ -3,24 +3,56 @@ const commentButton = document.getElementById('comment-button')
 const commentsList = document.getElementById('comments-list')
 const commentNameInput = document.getElementById('comment-name-input')
 const commentTextInput = document.getElementById('comment-text-input')
+const commentUrl = "https://wedev-api.sky.pro/api/v1/pavel-karmanov/comments"
 
 // * Массив комментов
-const comments = [
-  {
-    name: 'Глеб Фокин',
-    date: '12.02.22 12:18',
-    text: 'Это будет первый комментарий на этой странице',
-    isLiked: false,
-    likeCount: 3,
-  },
-  {
-    name: 'Варвара Н.',
-    date: '13.02.22 19:22',
-    text: 'Мне нравится как оформлена эта страница! ❤',
-    isLiked: true,
-    likeCount: 75,
-  },
-]
+let comments = []
+
+// ! API
+// * API GET
+function readCommentFromServer() {
+  fetch(commentUrl, {
+    method: "GET",
+  }).then((res) => res.json())
+    .then((data) => {
+      const appComments = data.comments.map((comment) => {
+
+        return {
+          name: comment.author.name,
+          date: fnDate(new Date(comment.date)),
+          text: comment.text,
+          isLiked: false,
+          likeCount: 0,
+        }
+      })
+
+      comments = appComments
+      renderComments()
+    })
+}
+
+// * API POST
+function sendCommentToServer() {
+  fetch(commentUrl, {
+    method: "POST",
+    body: JSON.stringify({
+      name: commentNameInput.value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('""', '&quot;'),
+      text: commentTextInput.value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('""', '&quot;'),
+    }),
+  }).then((res) => {
+    res.json().then(() => {
+      readCommentFromServer()
+    })
+  })
+}
 
 // * Функция формата даты
 function fnDate(commentDate) {
@@ -61,13 +93,13 @@ function renderComments() {
   </li>`
   }).join('') // * С помощью join() делаем строку
 
+  // * Коментировать выбранный коментарий
   const commentTexts = document.querySelectorAll('.comment-text')
   commentTexts.forEach(commentText => {
     commentText.addEventListener('click', (event) => {
       const index = event.target.getAttribute('data-index')
       commentTextInput.value = `> ${comments[index].text}: ${comments[index].name}`
       commentTextInput.focus()
-      console.log('click :З')
     })
   })
 
@@ -121,27 +153,7 @@ commentButton.addEventListener('click', () => {
     return
   }
 
-  // * Создание новой даты в новом комментарии
-  let commentDate = new Date()
-
-  // * Добавление комментария в массив комментариев
-  comments.push(
-    {
-      name: commentNameInput.value
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('""', '&quot;'),
-      date: fnDate(commentDate),
-      text: commentTextInput.value
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('""', '&quot;'),
-      isLiked: false,
-      likeCount: 0,
-    }
-  )
+  sendCommentToServer()
 
   // * Перерендер массива после добавления комментария в HTML
   renderComments()
@@ -153,3 +165,5 @@ commentButton.addEventListener('click', () => {
 
 // * Рендер массива при загрузке страницы
 renderComments()
+
+readCommentFromServer()
