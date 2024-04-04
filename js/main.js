@@ -21,8 +21,8 @@ function readCommentFromServer() {
           name: comment.author.name,
           date: fnDate(new Date(comment.date)),
           text: comment.text,
-          isLiked: false,
-          likeCount: 0,
+          isLiked: comment.isLiked,
+          likeCount: comment.likes,
         }
       })
 
@@ -164,6 +164,5 @@ commentButton.addEventListener('click', () => {
 })
 
 // * Рендер массива при загрузке страницы
-renderComments()
 
 readCommentFromServer()
