@@ -122,6 +122,7 @@ body {
 
 .add-form-row {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
 }
 
