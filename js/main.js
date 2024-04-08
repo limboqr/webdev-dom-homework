@@ -11,9 +11,8 @@ let comments = []
 // ! API
 // * API GET
 function readCommentFromServer() {
-  fetch(commentUrl, {
-    method: "GET",
-  }).then((res) => res.json())
+  fetch(commentUrl)
+    .then((res) => res.json())
     .then((data) => {
       const appComments = data.comments.map((comment) => {
 
@@ -33,6 +32,8 @@ function readCommentFromServer() {
 
 // * API POST
 function sendCommentToServer() {
+  commentButton.disabled = true
+
   fetch(commentUrl, {
     method: "POST",
     body: JSON.stringify({
@@ -47,11 +48,24 @@ function sendCommentToServer() {
         .replaceAll('>', '&gt;')
         .replaceAll('""', '&quot;'),
     }),
-  }).then((res) => {
-    res.json().then(() => {
-      readCommentFromServer()
-    })
   })
+    .then((res) => res.json())
+    .then(() => {
+      readCommentFromServer()
+      return 'ok'
+    })
+    .catch((error) => console.log(error))
+    .then((result) => {
+      commentButton.disabled = false
+      commentButton.textContent = 'Написать'
+
+      if (result === 'ok') {
+        commentTextInput.value = ''
+      } 
+      else {
+        renderComments()
+      }
+    })
 }
 
 // * Функция формата даты
@@ -153,16 +167,16 @@ commentButton.addEventListener('click', () => {
     return
   }
 
-  sendCommentToServer()
+  commentsList.innerHTML = 'Стучу на сервак ^.^'
 
-  // * Перерендер массива после добавления комментария в HTML
-  renderComments()
+  commentButton.disabled = true
+  commentButton.textContent = 'Отправляю...'
+
+  sendCommentToServer()
 
   // * Поля ввода после создания комментария
   commentNameInput.value = `${commentNameInput.value}`
-  commentTextInput.value = ''
 })
 
-// * Рендер массива при загрузке страницы
-
+commentsList.textContent = 'Подождите чутка...'
 readCommentFromServer()
