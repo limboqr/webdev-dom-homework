@@ -5,15 +5,33 @@ const commentNameInput = document.getElementById('comment-name-input')
 const commentTextInput = document.getElementById('comment-text-input')
 const commentUrl = "https://wedev-api.sky.pro/api/v1/pavel-karmanov/comments"
 
+String.prototype.sanitize = function () {
+  return this
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('""', '&quot;')
+}
+
 // * Массив комментов
 let comments = []
 
 // ! API
 // * API GET
 function readCommentFromServer() {
+  let status = 0
+
   fetch(commentUrl)
-    .then((res) => res.json())
+    .then((res) => {
+      status = res.status
+      return res.json()
+    })
     .then((data) => {
+      if (status !== 200)
+        throw new Error(data.error)
+      // else if (status === 500)
+      //   throw new Error('Ошибка сервера')
+
       const appComments = data.comments.map((comment) => {
 
         return {
@@ -28,43 +46,67 @@ function readCommentFromServer() {
       comments = appComments
       renderComments()
     })
+    .catch((error) => {
+      if (error.message === 'Failed to fetch')
+        alert('Ошибка соединения с сервером. Проверьте Интернета')
+      else
+        alert(error.message)
+
+      console.log(error)
+    })
 }
 
 // * API POST
 function sendCommentToServer() {
+  let status = 0
   commentButton.disabled = true
 
   fetch(commentUrl, {
     method: "POST",
     body: JSON.stringify({
-      name: commentNameInput.value
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('""', '&quot;'),
-      text: commentTextInput.value
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('""', '&quot;'),
+      name: commentNameInput.value.sanitize(),
+      text: commentTextInput.value.sanitize(),
+      // name: commentNameInput.value
+      //   .replaceAll('&', '&amp;')
+      //   .replaceAll('<', '&lt;')
+      //   .replaceAll('>', '&gt;')
+      //   .replaceAll('""', '&quot;'),
+      // text: commentTextInput.value
+      //   .replaceAll('&', '&amp;')
+      //   .replaceAll('<', '&lt;')
+      //   .replaceAll('>', '&gt;')
+      //   .replaceAll('""', '&quot;'),
     }),
   })
-    .then((res) => res.json())
-    .then(() => {
+    .then((res) => {
+      status = res.status
+      return res.json()
+    })
+    .then((data) => {
+      if (status !== 201)
+        throw new Error(data.error)
+      // else if (status === 500)
+      //   throw new Error('Ошибка сервера')
+
       readCommentFromServer()
       return 'ok'
     })
-    .catch((error) => console.log(error))
+    .catch((error) => {
+      if (error.message === 'Failed to fetch')
+        alert('Ошибка соединения с сервером. Проверьте Интернета')
+      else
+        alert(error.message)
+
+      console.log(error)
+    })
     .then((result) => {
       commentButton.disabled = false
       commentButton.textContent = 'Написать'
 
-      if (result === 'ok') {
+      if (result === 'ok')
         commentTextInput.value = ''
-      } 
-      else {
+      else
         renderComments()
-      }
     })
 }
 
