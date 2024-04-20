@@ -55,7 +55,7 @@ export const DOM = {
             // else if (API.status === 500)
             //   throw new Error('Ошибка сервера')
 
-            readCommentFromServer()
+            this.readCommentFromServer()
             return 'ok'
          })
          .catch((error) => {
@@ -87,21 +87,21 @@ export const DOM = {
             : ''
 
          return `<li class="comment">
-     <div class = "comment-header">
-       <div>${comment.name}</div>
-       <div>${comment.date}</div>
-     </div>
-     <div class = "comment-body">
-     <div class = "comment-text" data-index = "${index}">
-       ${comment.text}
-       </div>
-     </div>
-     <div    class = "comment-footer">
-     <div    class = "likes">
-     <span   class = "likes-counter" data-index              = "${index}">${comment.likeCount}</span>
-     <button class = "like-button ${classButton}" data-index = "${index}"></button>
-       </div>
-     </div>
+      <div class = "comment-header">
+         <div>${comment.name}</div>
+         <div>${comment.date}</div>
+      </div>
+      <div class = "comment-body">
+      <div class = "comment-text" data-index = "${index}">
+         ${comment.text}
+         </div>
+      </div>
+      <div    class = "comment-footer">
+      <div    class = "likes">
+      <span   class = "likes-counter" data-index              = "${index}">${comment.likeCount}</span>
+      <button class = "like-button ${classButton}" data-index = "${index}"></button>
+         </div>
+      </div>
    </li>`
       }).join('') // * С помощью join() делаем строку
 
