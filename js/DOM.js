@@ -11,6 +11,7 @@ export const DOM = {
    // * Массив комментов
    comments: [],
 
+   // * API GET
    readCommentFromServer() {
       let status = 0
 
@@ -32,7 +33,7 @@ export const DOM = {
          })
 
          this.comments = appComments
-         this.renderComments()
+         this.renderAll()
       })
          .catch((error) => {
             if (error.message === 'Failed to fetch')
@@ -77,6 +78,21 @@ export const DOM = {
          })
    },
 
+   // * Общая функция
+   renderAll() {
+      if (API.token) {
+         this.renderComments()
+         this.renderAddForm()
+      } else {
+         this.renderComments()
+         document.getElementById("footer").innerHTML = `
+         <p><a href="#" id="auth-link">Авторизуйтесь</a> чтобы отправить комментарий</p>`
+         document.getElementById("auth-link").addEventListener("click", () => {
+            this.renderAuthForm()
+         })
+      }
+   },
+
    // * Функция рендера комментов в HTML
    renderComments() {
       // * Создание нового массива с помощью map()
@@ -119,6 +135,53 @@ export const DOM = {
       this.initEventListener()
    },
 
+   // * Функция Авторизации
+   renderAuthForm() {
+      this.commentsList.innerHTML = ""
+      document.getElementById("footer").innerHTML = `
+         <div   class = "footer-auth">
+            <input class = "footer-input" id = "user-login-input" placeholder = "Введите ваш логин" type = "text" />
+
+            <input class = "footer-input" id = "user-password-input" placeholder = "Введите ваш пороль" type = "password" />
+
+            <button class = "footer-button" id = "auth-button">Авторизоваться</button>
+         </div>`
+
+      document.getElementById("auth-button").addEventListener("click", () => {
+         const login = document.getElementById("user-login-input").value
+         const password = document.getElementById("user-password-input").value
+
+         API.authUser(login, password).then((data) => {
+            if (API.status !== 201)
+               throw new Error(data.error)
+            // else if (API.status === 500)
+            //   throw new Error('Ошибка сервера')
+            this.renderAll()
+         })
+      })
+   },
+
+   // * Функция добавления формы
+   renderAddForm() {
+      document.getElementById("footer").innerHTML = `
+         <div   class = "add-form">
+         <input class = "add-form-name" id = "comment-name-input" placeholder = "Введите ваше имя" type = "text" value="${API.userName}" disabled />
+
+         <textarea class = "add-form-text" id = "comment-text-input" placeholder = "Введите ваш коментарий" type = "textarea"
+                  rows  = "4"></textarea>
+
+         <div    class = "add-form-row">
+         <button class = "add-form-button" id = "comment-button">Написать</button>
+         </div>
+      </div>`
+
+      this.commentNameInput = document.getElementById('comment-name-input')
+      this.commentTextInput = document.getElementById('comment-text-input')
+
+      this.commentButton = document.getElementById('comment-button')
+      this.handleSubmit()
+   },
+
    // * Функция лайка
    initEventListener() {
       // * Переменная всех кнопок лайков
@@ -127,6 +190,10 @@ export const DOM = {
       // * Цикл. При клике на кнопку лайка, добавляется или убирается лайк
       for (const likeButtonElement of likeButtonElements) {
          likeButtonElement.addEventListener('click', () => {
+            if (!API.token) {
+               return
+            }
+
             const index = likeButtonElement.dataset.index
             if (this.comments[index].isLiked) {
                this.comments[index].isLiked = !this.comments[index].isLiked
@@ -144,7 +211,13 @@ export const DOM = {
 
    // * Валидация ввода имени и комментария
    handleSubmit() {
-      this.commentButton.addEventListener('click', () => {
+      if (!API.token) {
+         return
+      }
+
+      this.commentButton.addEventListener('click', (event) => {
+         event.stopPropagation()
+
          // * Создание переменной ошибки
          let error = false
 
@@ -178,7 +251,7 @@ export const DOM = {
       })
    },
 
-   // * Пюск
+   // * Пьюск
    start() {
       this.handleSubmit()
       this.commentsList.textContent = 'Подождите чутка...'
