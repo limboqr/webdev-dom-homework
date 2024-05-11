@@ -184,3 +184,10 @@ body {
   border-radius: 18px;
   cursor: pointer;
 }
+
+#auth-link {
+  color: #bcec30;
+  &:hover {
+    text-decoration: none;
+  }
+}
