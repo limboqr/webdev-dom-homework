@@ -1,3 +1,4 @@
+import { format } from "date-fns/format"
 import { API } from "./api.js"
 import { fnDate } from "./common.js"
 
@@ -25,7 +26,7 @@ export const DOM = {
 
             return {
                name: comment.author.name,
-               date: fnDate(new Date(comment.date)),
+               date: format(new Date(comment.date), 'yyyy-MM-dd hh.mm.ss'),
                text: comment.text,
                isLiked: comment.isLiked,
                likeCount: comment.likes,
